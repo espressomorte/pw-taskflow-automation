@@ -68,7 +68,15 @@ export default defineConfig({
       },
       dependencies: ['setup'],
     },
-
+    {
+      name: 'api-only',
+      testMatch: '**/create-card-api.spec.ts',
+      testIgnore: 'auth.setup.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: BASE_URL,
+      },
+    },
     // {
     //   name: 'chromium',
     //   use: { ...devices['Desktop Chrome'] },
