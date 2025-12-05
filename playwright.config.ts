@@ -1,8 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
 import * as dotenv from 'dotenv';
+import { AUTH_CONFIG } from './src/config/auth.config';
+
 dotenv.config();
 
-const STORAGE_STATE_PATH = 'auth.json';
 const BASE_URL = process.env.TRELLO_BASE_URL || 'https://trello.com';
 
 /**
@@ -44,7 +45,7 @@ export default defineConfig({
   // },
   use: {
     trace: 'on',
-    storageState: 'auth.json',
+    storageState: AUTH_CONFIG.STORAGE_STATE_PATH,
     screenshot: 'only-on-failure',
     video: 'retain-on-failure'
   },
@@ -64,13 +65,13 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         baseURL: BASE_URL,
-        storageState: STORAGE_STATE_PATH,
+        storageState: AUTH_CONFIG.STORAGE_STATE_PATH,
       },
       dependencies: ['setup'],
     },
     {
       name: 'api-only',
-      testMatch: '**/create-card-api.spec.ts',
+      testMatch: ['**/api/**/*.spec.ts'],
       testIgnore: 'auth.setup.ts',
       use: {
         ...devices['Desktop Chrome'],

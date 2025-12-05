@@ -1,13 +1,16 @@
-import { test as setup, expect } from '@playwright/test';
+import { test as setup } from '@playwright/test';
+import { LoginPage } from '../src/pages/LoginPage';
+import { isSessionValid } from '../src/utils/session.utils';
 
 setup('authenticate', async ({ page }) => {
-    await page.goto('https://trello.com/login');
-    await page.getByTestId('username').fill(process.env.TRELLO_EMAIL!);
-    await page.getByTestId('login-submit-idf-testid').click();
-    await page.getByTestId('password').fill(process.env.TRELLO_PASS!);
-    await page.getByTestId('login-submit-idf-testid').click();
+    // Skip login if session is still valid
+    if (isSessionValid()) {
+        return;
+    }
 
-    await page.waitForURL('**/boards*', { timeout: 10000 });
+    const loginPage = new LoginPage(page);
 
-    await page.context().storageState({ path: 'auth.json' });
+    await loginPage.gotoLoginPage(process.env.TRELLO_BASE_URL!);
+    await loginPage.loginAndWait(process.env.TRELLO_EMAIL!, process.env.TRELLO_PASS!);
+    await loginPage.saveSession();
 });

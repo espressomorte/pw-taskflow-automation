@@ -1,6 +1,6 @@
 
 export class TrelloAPI {
-    
+
     private baseURL = 'https://api.trello.com/1';
 
     constructor(
@@ -63,28 +63,28 @@ export class TrelloAPI {
             throw new Error(`Failed to delete board: ${response.statusText}`);
         }
     }
-  async createList(boardId: string, listName: string): Promise<string> {
-    const params = new URLSearchParams({
-      name: listName,
-      idBoard: boardId,
-      key: this.apiKey,
-      token: this.apiToken
-    });
+    async createList(boardId: string, listName: string): Promise<string> {
+        const params = new URLSearchParams({
+            name: listName,
+            idBoard: boardId,
+            key: this.apiKey,
+            token: this.apiToken
+        });
 
-    const response = await fetch(`${this.baseURL}/lists?${params}`, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json'
-      }
-    });
+        const response = await fetch(`${this.baseURL}/lists?${params}`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
 
-    if (!response.ok) {
-      throw new Error(`Failed to create list: ${response.statusText}`);
+        if (!response.ok) {
+            throw new Error(`Failed to create list: ${response.statusText}`);
+        }
+
+        const list = await response.json();
+        return list.id;
     }
-
-    const list = await response.json();
-    return list.id;
-  }
     // get all lists on a board
     async getLists(boardId: string): Promise<any[]> {
         const response = await fetch(
@@ -144,5 +144,20 @@ export class TrelloAPI {
             `${this.baseURL}/cards/${cardId}?key=${this.apiKey}&token=${this.apiToken}`,
             { method: 'DELETE' }
         );
+    }
+
+    // get card by name from a board
+    async getCardByName(boardId: string, cardName: string): Promise<string | null> {
+        const cards = await this.getCards(boardId);
+        const card = cards.find(c => c.name === cardName);
+        return card?.id || null;
+    }
+
+    // delete card by name from a board
+    async deleteCardByName(boardId: string, cardName: string): Promise<void> {
+        const cardId = await this.getCardByName(boardId, cardName);
+        if (cardId) {
+            await this.deleteCard(cardId);
+        }
     }
 }
