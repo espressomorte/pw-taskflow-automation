@@ -61,12 +61,14 @@ export default defineConfig({
 
     {
       name: 'default',
-      testIgnore: 'auth.setup.ts',
+      testIgnore: ['auth.setup.ts', '**/api/**/*.spec.ts'],
+      testMatch: '**/ui/**/*.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
         baseURL: BASE_URL,
         storageState: AUTH_CONFIG.STORAGE_STATE_PATH,
       },
+      fullyParallel: false,
       dependencies: ['setup'],
     },
     {
