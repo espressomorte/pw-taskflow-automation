@@ -91,6 +91,9 @@ export class BoardPage {
      * Archive a card using the quick edit dropdown menu on board
      */
     async archiveCard(cardName: string) {
+        // Hover on card to reveal the edit button
+        const card = this.page.locator('[data-testid="trello-card"]').filter({ hasText: cardName });
+        await card.hover();
         await this.page.getByRole('button', { name: `Edit card ${cardName}` }).click();
         await this.page.getByTestId('quick-card-editor-archive').click();
     }
