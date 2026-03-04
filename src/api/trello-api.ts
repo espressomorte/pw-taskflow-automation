@@ -1,3 +1,4 @@
+import { TrelloBoard, TrelloCard, TrelloList } from "./types";
 
 export class TrelloAPI {
 
@@ -30,7 +31,7 @@ export class TrelloAPI {
         return board.id;
     }
 
-    async getBoards(): Promise<any[]> {
+    async getBoards(): Promise<TrelloBoard[]> {
         const response = await fetch(
             `${this.baseURL}/members/me/boards?key=${this.apiKey}&token=${this.apiToken}`
         );
@@ -86,7 +87,7 @@ export class TrelloAPI {
         return list.id;
     }
     // get all lists on a board
-    async getLists(boardId: string): Promise<any[]> {
+    async getLists(boardId: string): Promise<TrelloList[]> {
         const response = await fetch(
             `${this.baseURL}/boards/${boardId}/lists?key=${this.apiKey}&token=${this.apiToken}`
         );
@@ -131,7 +132,7 @@ export class TrelloAPI {
     }
 
     // get all cards on a board
-    async getCards(boardId: string): Promise<any[]> {
+    async getCards(boardId: string): Promise<TrelloCard[]> {
         const response = await fetch(
             `${this.baseURL}/boards/${boardId}/cards?key=${this.apiKey}&token=${this.apiToken}`
         );
