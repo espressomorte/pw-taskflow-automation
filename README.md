@@ -2,7 +2,7 @@
 
 This is a training automation framework built with Playwright.
 Most demo or dummy testing sites are extremely boring, so this project uses Trello to provide real-life scenarios, dynamic elements, and more interesting challenges.
-No stress or load tests were performed — the goal of this project is practice, not putting any heavy pressure on infrastructure.
+No stress or load tests were performed, the goal of this project is practice, not putting any heavy pressure on infrastructure.
 
 ## Features
 

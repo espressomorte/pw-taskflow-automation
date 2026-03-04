@@ -1,16 +1,12 @@
 import { Page, expect } from '@playwright/test';
 import { AUTH_CONFIG } from '../config/auth.config';
+import { BasePage } from './BasePage';
 
-export class LoginPage {
-    readonly page: Page;
+export class LoginPage extends BasePage {
 
     get usernameInput() { return this.page.getByTestId('username'); }
     get passwordInput() { return this.page.getByTestId('password'); }
     get submitButton() { return this.page.getByTestId('login-submit'); }
-
-    constructor(page: Page) {
-        this.page = page;
-    }
 
     /**
      * Navigate to login page
@@ -18,8 +14,7 @@ export class LoginPage {
      */
     async gotoLoginPage(url: string) {
         await this.page.goto(`${url}/login`);
-        // Wait for Trello's client-side redirect to complete
-        await this.page.waitForLoadState('networkidle');
+        // Wait for Trello's client-side redirect to complete and show the login form
         await expect(this.usernameInput).toBeVisible({ timeout: 10000 });
     }
 
@@ -30,9 +25,9 @@ export class LoginPage {
      */
     async login(email: string, password: string) {
         await this.usernameInput.fill(email);
-        await this.submitButton.click();
+        //await this.submitButton.click();
         await this.passwordInput.fill(password);
-        await this.submitButton.click();
+        //await this.submitButton.click();
     }
 
     /**

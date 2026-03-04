@@ -11,6 +11,7 @@ test.describe('API Card Operations', () => {
         const createdCard = cards.find(card => card.id === cardId);
 
         expect(createdCard).toBeDefined();
+        if (!createdCard) throw new Error(`Card ${cardId} not found`);
         expect(createdCard.name).toBe(cardName);
         expect(createdCard.desc).toBe('Description from API');
     });

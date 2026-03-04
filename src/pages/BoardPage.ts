@@ -1,32 +1,14 @@
 import { Page, Locator, expect } from '@playwright/test';
+import { BasePage } from './BasePage';
 
-export class BoardPage {
-    readonly page: Page;
+
+export class BoardPage extends BasePage {
 
     // Selectors
     private get lists() { return this.page.locator('[data-testid="list"]'); }
     private get addListButton() { return this.page.getByRole('button', { name: 'Add another list' }); }
     private get listNameInput() { return this.page.getByPlaceholder('Enter list name…'); }
     private get addListSubmit() { return this.page.getByRole('button', { name: 'Add list' }); }
-
-    constructor(page: Page) {
-        this.page = page;
-    }
-
-    /**
-     * Dismiss any popup modals (like Jira ads)
-     */
-    async dismissPopups() {
-        try {
-            const minimizeBtn = this.page.locator('button[title="Minimize"]');
-            if (await minimizeBtn.isVisible({ timeout: 500 })) {
-                await minimizeBtn.click();
-                await this.page.waitForTimeout(300);
-            }
-        } catch {
-            // Popup not present, continue
-        }
-    }
 
     async goto(boardUrl: string) {
         await this.page.goto(boardUrl);

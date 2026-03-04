@@ -1,33 +1,13 @@
 import { Page, Locator, expect } from '@playwright/test';
+import { BasePage } from './BasePage';
 
-export class CardPage {
-    readonly page: Page;
-
+export class CardPage extends BasePage {
     // Card modal selectors - based on actual Trello DOM
     private get modal() { return this.page.locator('[data-testid="card-back-name"]'); }
     private get closeButton() { return this.page.getByLabel('Close dialog'); }
     private get titleInput() { return this.page.locator('[data-testid="card-back-title-input"]'); }
     private get descriptionButton() { return this.page.locator('[data-testid="description-button"]'); }
     private get actionsButton() { return this.page.locator('[data-testid="card-back-actions-button"]'); }
-
-    constructor(page: Page) {
-        this.page = page;
-    }
-
-    /**
-     * Dismiss any popup modals (like Jira ads)
-     */
-    async dismissPopups() {
-        try {
-            const minimizeBtn = this.page.locator('button[title="Minimize"]');
-            if (await minimizeBtn.isVisible({ timeout: 500 })) {
-                await minimizeBtn.click();
-                await this.page.waitForTimeout(300);
-            }
-        } catch {
-            // Popup not present, continue
-        }
-    }
 
     /**
      * Open a card by clicking on its link
