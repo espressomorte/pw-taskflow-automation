@@ -1,9 +1,8 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
 
 export class CardPage extends BasePage {
     // Card modal selectors - based on actual Trello DOM
-    private get modal() { return this.page.locator('[data-testid="card-back-name"]'); }
     private get closeButton() { return this.page.getByLabel('Close dialog'); }
     private get titleInput() { return this.page.locator('[data-testid="card-back-title-input"]'); }
     private get descriptionButton() { return this.page.locator('[data-testid="description-button"]'); }
@@ -17,19 +16,19 @@ export class CardPage extends BasePage {
         const cardLink = this.page.getByRole('link', { name: cardName });
         await cardLink.hover();
 
-        // Чекаємо поки елемент буде ready для кліку
         await cardLink.waitFor({ state: 'attached' });
         await cardLink.waitFor({ state: 'visible' });
 
-        // Клік з option чекати поки navigation завершиться
         await cardLink.click({
             noWaitAfter: false,
             timeout: 5000
         });
-
-        await expect(this.modal).toBeVisible({ timeout: 10000 });
+        await this.getModal().waitFor({ state: 'visible', timeout: 10000 });
     }
 
+    getModal(): Locator {
+        return this.page.locator('[data-testid="card-back-name"]');
+    }
     /**
      * Get the card title
      */
@@ -58,23 +57,27 @@ export class CardPage extends BasePage {
     /**
      * Archive the current card via actions menu
      */
-    async archiveCard() {
+    async archiveCardViaActions() {
         await this.actionsButton.click();
         await this.page.getByRole('menuitem', { name: 'Archive' }).click();
     }
+    /**
+     * Archive the current card
+     */
+    async archiveCard(cardName: string) {
+        const card = this.page.locator('[data-testid="trello-card"]').filter({ hasText: cardName });
+        await card.hover();
+        await card.getByTestId('card-done-state-completion-button').click();
 
+        const archiveBtn = this.page.getByRole('button', { name: 'Archive card' });
+        await archiveBtn.waitFor({ state: 'visible', timeout: 5000 });
+        await archiveBtn.click();
+    }
     /**
      * Close the card modal
      */
     async close() {
         await this.closeButton.click();
-        await expect(this.modal).not.toBeVisible();
     }
 
-    /**
-     * Check if card modal is open
-     */
-    async isOpen(): Promise<boolean> {
-        return await this.modal.isVisible();
-    }
 }

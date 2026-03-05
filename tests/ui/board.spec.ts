@@ -15,24 +15,24 @@ test.describe('Board Operations', () => {
         const firstList = listNames[0];
 
         cardCleanup.register(cardName);
-        await boardPage.addCard(firstList, cardName);
 
-        const card = boardPage.getCard(cardName);
+        const card = await boardPage.addCard(firstList, cardName);
         await expect(card).toBeVisible();
     });
 
-    test('TC-002: Open and close card modal', async ({ boardPage, cardPage, cardCleanup }) => {
+    test('TC-002: Open and close card modal @sanity', async ({ boardPage, cardPage, cardCleanup }) => {
         const cardName = `Modal Test ${Date.now()}`;
         const listNames = await boardPage.getListNames();
 
         cardCleanup.register(cardName);
-        await boardPage.addCard(listNames[0], cardName);
+        const card = await boardPage.addCard(listNames[0], cardName);
+        await expect(card).toBeVisible();
 
         await cardPage.openCard(cardName);
-        expect(await cardPage.isOpen()).toBe(true);
+        await expect(cardPage.getModal()).toBeVisible();
 
         await cardPage.close();
-        expect(await cardPage.isOpen()).toBe(false);
+        await expect(cardPage.getModal()).not.toBeVisible();
     });
 
     test('TC-003: Edit card title', async ({ boardPage, cardPage, cardCleanup }) => {
@@ -59,12 +59,14 @@ test.describe('Board Operations', () => {
         const listNames = await boardPage.getListNames();
 
         cardCleanup.register(cardName);
-        await boardPage.addCard(listNames[0], cardName);
-        await cardPage.openCard(cardName);
+        const card = await boardPage.addCard(listNames[0], cardName);
+        await expect(card).toBeVisible();
 
+        await cardPage.openCard(cardName);
+        await expect(cardPage.getModal()).toBeVisible();
         await cardPage.setDescription(description);
         await cardPage.close();
-
+        await expect(cardPage.getModal()).not.toBeVisible();
     });
 
     test('TC-005: Archive card @smoke', async ({ boardPage }) => {
