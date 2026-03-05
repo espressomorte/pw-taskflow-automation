@@ -1,4 +1,4 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
 
 
@@ -12,8 +12,7 @@ export class BoardPage extends BasePage {
 
     async goto(boardUrl: string) {
         await this.page.goto(boardUrl);
-        //await this.page.waitForLoadState('networkidle');
-        await expect(this.lists.first()).toBeVisible({ timeout: 10000 });
+        await this.lists.first().waitFor({ state: 'visible', timeout: 10000 });
         await this.dismissPopups();
     }
 
@@ -35,22 +34,22 @@ export class BoardPage extends BasePage {
     /**
      * Add a card to a specific list
      */
-    async addCard(listName: string, cardName: string) {
+    async addCard(listName: string, cardName: string): Promise<Locator> {
         const list = this.getList(listName);
         await list.getByRole('button', { name: `Add a card` }).click();
         await this.page.getByTestId('list-card-composer-textarea').fill(cardName);
         await this.page.getByTestId('list-card-composer-add-card-button').click();
-        await expect(list.locator('[data-testid="trello-card"]').filter({ hasText: cardName })).toBeVisible();
+        return list.locator('[data-testid="trello-card"]').filter({ hasText: cardName });
     }
 
     /**
      * Add a new list to the board
      */
-    async addList(listName: string) {
+    async addList(listName: string): Promise<Locator> {
         await this.addListButton.click();
         await this.listNameInput.fill(listName);
         await this.addListSubmit.click();
-        await expect(this.getList(listName)).toBeVisible();
+        return this.getList(listName);
     }
 
     /**
