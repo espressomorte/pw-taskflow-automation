@@ -9,6 +9,15 @@ export class TrelloAPI {
         private apiToken: string
     ) { }
 
+    private request<T>(url: string, options?: RequestInit): Promise<T> {
+        return fetch(url, options).then(async (response) => {
+            if (!response.ok) {
+                throw new Error(`Failed to fetch: ${response.statusText}`);
+            }
+            return response.json() as T;
+        });
+    }
+
     async createBoard(name: string): Promise<string> {
         const params = new URLSearchParams({
             name: name,
@@ -16,31 +25,17 @@ export class TrelloAPI {
             token: this.apiToken
         });
 
-        const response = await fetch(`${this.baseURL}/boards?${params}`, {
+        const board = await this.request<TrelloBoard>(`${this.baseURL}/boards?${params}`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json'
             }
         });
-
-        if (!response.ok) {
-            throw new Error(`Failed to create board: ${response.statusText}`);
-        }
-
-        const board = await response.json();
         return board.id;
     }
 
     async getBoards(): Promise<TrelloBoard[]> {
-        const response = await fetch(
-            `${this.baseURL}/members/me/boards?key=${this.apiKey}&token=${this.apiToken}`
-        );
-
-        if (!response.ok) {
-            throw new Error(`Failed to get boards: ${response.statusText}`);
-        }
-
-        return await response.json();
+        return this.request<TrelloBoard[]>(`${this.baseURL}/members/me/boards?key=${this.apiKey}&token=${this.apiToken}`);
     }
 
     async getBoardByName(boardName: string): Promise<string> {
@@ -55,15 +50,9 @@ export class TrelloAPI {
     }
 
     async deleteBoard(boardId: string): Promise<void> {
-        const response = await fetch(
-            `${this.baseURL}/boards/${boardId}?key=${this.apiKey}&token=${this.apiToken}`,
-            { method: 'DELETE' }
-        );
-
-        if (!response.ok) {
-            throw new Error(`Failed to delete board: ${response.statusText}`);
-        }
+        return this.request<void>(`${this.baseURL}/boards/${boardId}?key=${this.apiKey}&token=${this.apiToken}`, { method: 'DELETE' });
     }
+
     async createList(boardId: string, listName: string): Promise<string> {
         const params = new URLSearchParams({
             name: listName,
@@ -71,28 +60,19 @@ export class TrelloAPI {
             key: this.apiKey,
             token: this.apiToken
         });
-
-        const response = await fetch(`${this.baseURL}/lists?${params}`, {
+        const list = await this.request<TrelloList>(`${this.baseURL}/lists?${params}`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json'
             }
         });
-
-        if (!response.ok) {
-            throw new Error(`Failed to create list: ${response.statusText}`);
-        }
-
-        const list = await response.json();
         return list.id;
     }
     // get all lists on a board
     async getLists(boardId: string): Promise<TrelloList[]> {
-        const response = await fetch(
-            `${this.baseURL}/boards/${boardId}/lists?key=${this.apiKey}&token=${this.apiToken}`
-        );
-        return await response.json();
+        return this.request<TrelloList[]>(`${this.baseURL}/boards/${boardId}/lists?key=${this.apiKey}&token=${this.apiToken}`);
     }
+
     // get list by name
     async getListByName(boardId: string, listName: string): Promise<string> {
         const lists = await this.getLists(boardId);
@@ -115,36 +95,25 @@ export class TrelloAPI {
         if (description) {
             params.append('desc', description);
         }
-
-        const response = await fetch(`${this.baseURL}/cards?${params}`, {
+        const card = await this.request<TrelloCard>(`${this.baseURL}/cards?${params}`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json'
             }
         });
-
-        if (!response.ok) {
-            throw new Error(`Failed to create card: ${response.statusText}`);
-        }
-
-        const card = await response.json();
         return card.id;
     }
 
     // get all cards on a board
     async getCards(boardId: string): Promise<TrelloCard[]> {
-        const response = await fetch(
-            `${this.baseURL}/boards/${boardId}/cards?key=${this.apiKey}&token=${this.apiToken}`
-        );
-        return await response.json();
+
+        return this.request<TrelloCard[]>(`${this.baseURL}/boards/${boardId}/cards?key=${this.apiKey}&token=${this.apiToken}`);
     }
 
     // delete a card by ID
     async deleteCard(cardId: string): Promise<void> {
-        await fetch(
-            `${this.baseURL}/cards/${cardId}?key=${this.apiKey}&token=${this.apiToken}`,
-            { method: 'DELETE' }
-        );
+        return this.request<void>(`${this.baseURL}/cards/${cardId}?key=${this.apiKey}&token=${this.apiToken}`, 
+            { method: 'DELETE' });
     }
 
     // get card by name from a board
